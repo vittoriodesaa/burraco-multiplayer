@@ -11,7 +11,7 @@ body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden; /* Blocca lo scorrimento della pagina */
 }
 
@@ -97,9 +97,11 @@ body {
     margin-left: 0; /* La prima carta non deve avere margine negativo */
 }
 
-#player-hand .card:hover { 
-    transform: translateY(-15px); /* Solleva la carta quando ci passi sopra */
-}
+@media (hover: hover) {
+    #player-hand .card:hover { 
+        transform: translateY(-15px); /* Si attiva SOLO se hai un vero mouse */
+    }
+}   
 
 /* 5. BOTTONI E CHAT */
 #action-buttons { 

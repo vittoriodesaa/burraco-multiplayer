@@ -361,10 +361,12 @@ document.getElementById('btn-discard').addEventListener('click', () => {
             if (dati.pozzetto1) {
                 miaMano.push(...dati.pozzetto1);
                 dati.pozzetto1 = null;
+                if (mioRuolo === 'giocatore1') dati.presoPozzettoG1 = true; else dati.presoPozzettoG2 = true;
                 alert("Hai preso il primo Pozzetto con lo scarto! Lo giocherai al prossimo turno.");
             } else if (dati.pozzetto2) {
                 miaMano.push(...dati.pozzetto2);
                 dati.pozzetto2 = null;
+                if (mioRuolo === 'giocatore1') dati.presoPozzettoG1 = true; else dati.presoPozzettoG2 = true;
                 alert("Hai preso il secondo Pozzetto con lo scarto! Lo giocherai al prossimo turno.");
             }
         }
@@ -427,39 +429,53 @@ document.getElementById('btn-sort').addEventListener('click', () => {
 });
 
 // 11. IL CERVELLO MATEMATICO DELLE CALATE
+// 11. IL CERVELLO MATEMATICO DELLE CALATE (Aggiornato per Asso Alto e Matte)
 function validaCalata(carteScelte) {
     if (carteScelte.length < 3) return false;
 
-    // Separiamo le carte vere dai Jolly/Pinelle
     let matte = carteScelte.filter(c => c.tipo === 'jolly' || c.tipo === 'pinella');
     let naturali = carteScelte.filter(c => c.tipo === 'normale');
 
-    // Regola d'oro: Massimo 1 matta per calata (escludiamo il tris di sole pinelle per semplicità)
     if (matte.length > 1) return false;
     if (naturali.length === 0) return false;
 
-    // Controllo TRIS (le naturali hanno tutte lo stesso numero)
+    // Controllo TRIS
     let isTris = naturali.every(c => c.valore === naturali[0].valore);
     if (isTris) return true;
 
-    // Controllo SCALA (le naturali hanno tutte lo stesso seme)
+    // Controllo SCALA
     let isScala = naturali.every(c => c.seme === naturali[0].seme);
     if (isScala) {
-        // Ordiniamo in senso crescente per controllare se ci sono i gradini
-        naturali.sort((a, b) => a.valore - b.valore);
-        let buchi = 0;
-        for (let i = 0; i < naturali.length - 1; i++) {
-            let diff = naturali[i+1].valore - naturali[i].valore;
-            if (diff === 0) return false; // Errore: due carte identiche nella stessa scala!
-            if (diff > 1) buchi += (diff - 1); // Contiamo quanti gradini mancano
+        
+        // Funzione interna per contare i buchi in una scala
+        const contaBuchi = (carte) => {
+            let sorted = [...carte].sort((a, b) => a.valore - b.valore);
+            let buchi = 0;
+            for (let i = 0; i < sorted.length - 1; i++) {
+                let diff = sorted[i+1].valore - sorted[i].valore;
+                if (diff === 0) return -1; // Errore: due carte identiche
+                if (diff > 1) buchi += (diff - 1); // Contiamo i gradini mancanti
+            }
+            return buchi;
+        };
+
+        // 1° Tentativo: L'Asso vale 1 (A, 2, 3)
+        let buchiBassi = contaBuchi(naturali);
+        // NOTA: Qui c'è la correzione (<=) per far funzionare i Jolly all'estremità!
+        if (buchiBassi !== -1 && buchiBassi <= matte.length) return true;
+
+        // 2° Tentativo: Se c'è un Asso, proviamo a farlo valere 14 (Q, K, A)
+        let haAsso = naturali.some(c => c.valore === 1);
+        if (haAsso) {
+            // Creiamo una copia temporanea dove l'Asso diventa 14
+            let naturaliAssoAlto = naturali.map(c => c.valore === 1 ? { ...c, valore: 14 } : c);
+            let buchiAlti = contaBuchi(naturaliAssoAlto);
+            if (buchiAlti !== -1 && buchiAlti <= matte.length) return true;
         }
-        // Se i gradini mancanti sono perfettamente coperti dalla nostra Matta, la scala è valida
-        if (buchi === matte.length) return true;
     }
 
     return false;
 }
-
 // 12. LOGICA DEI BOTTONI: CALA
 document.getElementById('btn-meld').addEventListener('click', () => {
     if (indiciCarteSelezionate.length < 3) {
@@ -504,11 +520,13 @@ document.getElementById('btn-meld').addEventListener('click', () => {
         if (miaMano.length === 0) {
             if (dati.pozzetto1) {
                 miaMano.push(...dati.pozzetto1); // Travasa le 11 carte
-                dati.pozzetto1 = null;           // Elimina il pozzetto 1 dal database
+                dati.pozzetto1 = null;
+                if (mioRuolo === 'giocatore1') dati.presoPozzettoG1 = true; else dati.presoPozzettoG2 = true;           // Elimina il pozzetto 1 dal database
                 alert("Hai preso il primo Pozzetto al volo! Puoi continuare a calare o scartare.");
             } else if (dati.pozzetto2) {
                 miaMano.push(...dati.pozzetto2);
                 dati.pozzetto2 = null;
+                if (mioRuolo === 'giocatore1') dati.presoPozzettoG1 = true; else dati.presoPozzettoG2 = true;
                 alert("Hai preso il secondo Pozzetto al volo! Puoi continuare a calare o scartare.");
             }
         }
@@ -535,6 +553,7 @@ function calcolaPunteggio(carte) {
 }
 
 // 14. LOGICA DEI BOTTONI: CHIUDI PARTITA
+// 14. LOGICA DEI BOTTONI: CHIUDI PARTITA (Aggiornato con Regole Reali)
 document.getElementById('btn-close-game').addEventListener('click', () => {
     const stanzaRef = ref(db, 'stanza_principale');
     
@@ -545,32 +564,44 @@ document.getElementById('btn-close-game').addEventListener('click', () => {
         let miaMano = (mioRuolo === 'giocatore1') ? dati.giocatore1 : dati.giocatore2;
         let manoAvversario = (mioRuolo === 'giocatore1') ? dati.giocatore2 : dati.giocatore1;
 
-        // Regola base del Burraco: per chiudere devi essere senza carte
+        // 1. Controllo Zero Carte
         if (miaMano && miaMano.length > 0) {
             alert("Mossa illegale! Per dichiarare la chiusura devi non avere carte in mano.");
             return;
         }
 
-        // 1. Calcoliamo i punti positivi a terra (incluse calate dell'avversario per correttezza)
+        // 2. Controllo Pozzetto
+        let hoPresoPozzetto = (mioRuolo === 'giocatore1') ? dati.presoPozzettoG1 : dati.presoPozzettoG2;
+        if (!hoPresoPozzetto) {
+            alert("Mossa illegale! Non puoi chiudere se non hai prima preso il Pozzetto.");
+            return;
+        }
+
+        // 3. Controllo Canasta e Calcolo Punti
+        let hoCanasta = false;
         let mieiPuntiTerra = 0;
+        
         if (dati.calate) {
-            // Per semplicità, qui sommiamo tutto quello che c'è a terra
-            // (In una versione Pro divideremmo le calate del G1 da quelle del G2)
             dati.calate.forEach(gruppo => {
                 mieiPuntiTerra += calcolaPunteggio(gruppo);
-                // Bonus Canasta base se il gruppo ha 7+ carte
-                if (gruppo.length >= 7) mieiPuntiTerra += 100;
+                // Se la calata ha 7 o più carte, è una Canasta!
+                if (gruppo.length >= 7) {
+                    mieiPuntiTerra += 100; // Bonus Canasta Base
+                    hoCanasta = true; 
+                }
             });
         }
 
-        // 2. Aggiungiamo i 100 punti di bonus chiusura a chi ha premuto il tasto
-        let mioPunteggioFinale = mieiPuntiTerra + 100;
+        if (!hoCanasta) {
+            alert("Mossa illegale! Devi avere almeno una Canasta (7 o più carte) a terra per chiudere.");
+            return;
+        }
 
-        // 3. Calcoliamo la penalità dell'avversario (le carte rimaste in mano)
+        // 4. Se tutti i controlli sono passati, la chiusura è valida!
+        let mioPunteggioFinale = mieiPuntiTerra + 100; // +100 punti per chi ha chiuso
         let puntiMenoAvversario = calcolaPunteggio(manoAvversario);
-
-        // 4. Blocchiamo il tavolo
-        dati.faseTurno = 'fine';
+        
+        dati.faseTurno = 'fine'; // Blocchiamo il tavolo
 
         set(stanzaRef, dati).then(() => {
             alert(`🏆 PARTITA CONCLUSA! 🏆\nHai chiuso e totalizzato: ${mioPunteggioFinale} punti positivi.\nL'avversario ha ${puntiMenoAvversario} punti negativi in mano.`);
