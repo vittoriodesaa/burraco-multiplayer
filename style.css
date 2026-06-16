@@ -212,7 +212,8 @@ button:disabled {
         margin-left: 5px; 
     }
     
-    #chat-container { width: 90%; right: 5%; bottom: 70px; }
+    #btn-toggle-chat { bottom: 130px; }
+    #chat-container { width: 90%; right: 5%; bottom: 180px; }
 }
 
 /* Correzione visiva: sposta il testo in alto a sinistra per le carte impilate */
