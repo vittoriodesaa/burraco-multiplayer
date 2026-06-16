@@ -124,13 +124,7 @@ button:disabled {
 }
 
 /* Chat Popup */
-#btn-toggle-chat {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 100;
-    border-radius: 50px;
-}
+
 
 #chat-container {
     position: fixed;
