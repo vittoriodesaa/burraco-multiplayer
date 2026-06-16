@@ -1,0 +1,222 @@
+/* 1. RESET BASE E TAVOLO */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body {
+    background-color: #0d5c22; /* Verde panno da gioco */
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* Blocca lo scorrimento della pagina */
+}
+
+#game-board {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 10px;
+}
+
+/* 2. LE AREE DI GIOCO */
+#opponent-area, #player-area {
+    height: 25%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#table-area {
+    height: 50%;
+    background-color: rgba(0,0,0,0.2); /* Sfondo leggermente più scuro per staccare */
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-centers {
+    display: flex;
+    justify-content: space-around;
+    height: 50%;
+}
+
+.zone { 
+    display: flex; 
+    gap: 10px; 
+    align-items: center; 
+}
+
+/* 3. STILE DELLE CARTE */
+.card {
+    width: 60px;
+    height: 90px;
+    background-color: white;
+    color: black;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 14px; /* Lasciato a 14px per poter leggere i numeri */
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    transition: transform 0.2s; /* L'animazione morbida per il sollevamento */
+}
+
+/* Dorso delle carte e spazi vuoti */
+.card.back {
+    background-color: #8b0000; /* Rosso scuro */
+    color: white;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
+}
+.card.placeholder { 
+    background-color: rgba(255,255,255,0.2); 
+    color: white; 
+    border: 2px dashed #ccc; 
+}
+
+/* 4. LE MANI A FISARMONICA (MOBILE-FRIENDLY) */
+.card-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#player-hand .card, #opponent-hand .card {
+    margin-left: -30px; /* Fa sovrapporre le carte l'una sull'altra */
+}
+#player-hand .card:first-child, #opponent-hand .card:first-child { 
+    margin-left: 0; /* La prima carta non deve avere margine negativo */
+}
+
+#player-hand .card:hover { 
+    transform: translateY(-15px); /* Solleva la carta quando ci passi sopra */
+}
+
+/* 5. BOTTONI E CHAT */
+#action-buttons { margin-bottom: 10px; }
+button {
+    padding: 8px 15px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #f1c40f; /* Giallo oro */
+    font-weight: bold;
+    cursor: pointer;
+}
+button:disabled { 
+    background-color: #ccc; 
+    cursor: not-allowed; 
+}
+
+/* Chat Popup */
+#btn-toggle-chat {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+    border-radius: 50px;
+}
+
+#chat-container {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    width: 250px;
+    height: 300px;
+    background-color: white;
+    color: black;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+    z-index: 99;
+}
+#chat-container.hidden { display: none; }
+
+#chat-messages { flex-grow: 1; padding: 10px; overflow-y: auto; font-size: 14px;}
+#chat-input-area { display: flex; padding: 5px; border-top: 1px solid #ccc; }
+#chat-input { flex-grow: 1; padding: 5px; }
+
+/* 6. ADATTAMENTO PER GLI SMARTPHONE */
+@media (max-width: 600px) {
+    .card { width: 50px; height: 75px; font-size: 12px; }
+    #player-hand .card, #opponent-hand .card { margin-left: -25px; }
+    #chat-container { width: 90%; right: 5%; bottom: 70px; }
+}
+
+/* Stile per gestire l'etichetta fuori dalla carta */
+.card-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px; /* Spazio tra la scritta e la carta */
+}
+
+.card-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #f1c40f; /* Giallo oro per risaltare sul verde */
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    white-space: nowrap; /* Impedisce al testo di andare a capo */
+}
+
+/* Bottone Riavvia (Rosso e in alto a destra) */
+#btn-restart-game {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #e74c3c; /* Rosso acceso */
+    color: white;
+    z-index: 100;
+}
+
+/* Effetto visivo quando selezioni una carta in mano */
+.card.selected {
+    border: 3px solid #f1c40f;
+    transform: translateY(-30px); /* Modificato: salta di 30px per staccarsi dall'hover che è a 15px */
+    box-shadow: 0px 10px 15px rgba(0,0,0,0.3);
+}
+/* 6. ADATTAMENTO PER GLI SMARTPHONE */
+@media (max-width: 600px) {
+    /* Impediamo alle carte di rimpicciolirsi troppo (flex-shrink: 0) */
+    .card { width: 50px; height: 75px; font-size: 12px; flex-shrink: 0; }
+    
+    /* Trasformiamo la mano in un binario scorrevole orizzontale */
+    #player-hand, #opponent-hand { 
+        display: flex; 
+        overflow-x: auto; 
+        width: 100vw; 
+        padding-bottom: 10px; /* Spazio per scorrere senza tagliare l'ombra */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    /* Annulliamo l'effetto "fisarmonica" e diamo spazio normale */
+    #player-hand .card, #opponent-hand .card { 
+        margin-left: 5px; 
+    }
+    
+    #chat-container { width: 90%; right: 5%; bottom: 70px; }
+}
+
+/* Correzione visiva: sposta il testo in alto a sinistra per le carte impilate */
+/* NUOVA Visualizzazione professionale per le calate sul tavolo */
+/* Posiziona il testo in ALTO a SINISTRA, nella zona sicura che non viene coperta */
+#calate-area .card {
+    justify-content: flex-start; /* Allinea a sinistra */
+    align-items: flex-start;     /* Allinea in ALTO (questa è la correzione) */
+    padding-top: 5px;            /* Piccolo spazio dal tetto */
+    padding-left: 5px;           /* Piccolo spazio dal lato */
+    font-size: 16px;             /* Grandezza ben leggibile */
+    line-height: 1;              /* Toglie spazi vuoti invisibili attorno al testo */
+}

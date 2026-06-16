@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Burraco 1vs1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-board">
+        
+        <div id="opponent-area">
+            <h3>Avversario <span id="opponent-card-count">(11 carte)</span></h3>
+            <div id="opponent-hand" class="card-row"></div>
+        </div>
+
+        <div id="table-area">
+            <div id="calate-area" style="display: flex; gap: 20px; overflow-x: auto; margin-top: 20px; padding: 10px; min-height: 120px;"></div>
+            
+            <div class="table-centers">
+                <div id="deck-zone" class="zone">
+                    <div class="card-stack">
+                        <span class="card-label">Mazzo (<span id="deck-count">108</span>)</span>
+                        <div id="deck" class="card back"></div>
+                    </div>
+                </div>
+
+                <div id="discard-zone" class="zone">
+                    <div class="card-stack">
+                        <span class="card-label">Scarti</span>
+                        <div id="discard-pile" class="card placeholder"></div>
+                    </div>
+                </div>
+                
+                <div id="pozzetti-zone" class="zone">
+                    <div class="card-stack">
+                        <span class="card-label">Pozzetto 1</span>
+                        <div class="pozzetto card back" id="pozzetto-1"></div>
+                    </div>
+                    <div class="card-stack">
+                        <span class="card-label">Pozzetto 2</span>
+                        <div class="pozzetto card back" id="pozzetto-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="player-area">
+            <div id="action-buttons">
+                <button id="btn-draw" disabled>Pesca</button>
+                <button id="btn-meld" disabled>Cala</button>
+                <button id="btn-discard" disabled>Scarta</button>
+                <button id="btn-sort">Riordina Mano</button>
+                <button id="btn-close-game" disabled>Chiudi</button>
+            </div>
+            <div id="player-hand" class="card-row"></div>
+        </div>
+
+    </div>
+
+    <button id="btn-restart-game" class="danger-btn">🔄 Riavvia Partita</button>
+    <button id="btn-toggle-chat">💬 Chat</button>
+    
+    <div id="chat-container" class="hidden">
+        <div id="chat-messages"></div>
+        <div id="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Scrivi un insulto...">
+            <button id="btn-send-chat">Invia</button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
