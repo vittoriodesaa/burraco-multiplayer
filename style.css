@@ -64,15 +64,15 @@ body {
     justify-content: center;
     align-items: center;
     font-weight: bold;
-    font-size: 14px; /* Lasciato a 14px per poter leggere i numeri */
+    font-size: 14px; 
     cursor: pointer;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    transition: transform 0.2s; /* L'animazione morbida per il sollevamento */
+    transition: transform 0.2s; 
 }
 
 /* Dorso delle carte e spazi vuoti */
 .card.back {
-    background-color: #8b0000; /* Rosso scuro */
+    background-color: #8b0000; 
     color: white;
     background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
 }
@@ -91,15 +91,15 @@ body {
 }
 
 #player-hand .card, #opponent-hand .card {
-    margin-left: -30px; /* Fa sovrapporre le carte l'una sull'altra */
+    margin-left: -30px; 
 }
 #player-hand .card:first-child, #opponent-hand .card:first-child { 
-    margin-left: 0; /* La prima carta non deve avere margine negativo */
+    margin-left: 0; 
 }
 
 @media (hover: hover) {
     #player-hand .card:hover { 
-        transform: translateY(-15px); /* Si attiva SOLO se hai un vero mouse */
+        transform: translateY(-15px); 
     }
 }   
 
@@ -116,7 +116,7 @@ button {
     margin: 0 5px;
     border: none;
     border-radius: 5px;
-    background-color: #f1c40f; /* Giallo oro */
+    background-color: #f1c40f; 
     font-weight: bold;
     cursor: pointer;
 }
@@ -124,8 +124,6 @@ button:disabled {
     background-color: #ccc; 
     cursor: not-allowed; 
 }
-
-
 
 #chat-container {
     position: fixed;
@@ -147,36 +145,29 @@ button:disabled {
 #chat-input-area { display: flex; padding: 5px; border-top: 1px solid #ccc; }
 #chat-input { flex-grow: 1; padding: 5px; }
 
-/* 6. ADATTAMENTO PER GLI SMARTPHONE */
-@media (max-width: 600px) {
-    .card { width: 50px; height: 75px; font-size: 12px; }
-    #player-hand .card, #opponent-hand .card { margin-left: -25px; }
-    #chat-container { width: 90%; right: 5%; bottom: 70px; }
-}
-
 /* Stile per gestire l'etichetta fuori dalla carta */
 .card-stack {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px; /* Spazio tra la scritta e la carta */
+    gap: 5px; 
 }
 
 .card-label {
     font-size: 12px;
     font-weight: bold;
-    color: #f1c40f; /* Giallo oro per risaltare sul verde */
+    color: #f1c40f; 
     text-transform: uppercase;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    white-space: nowrap; /* Impedisce al testo di andare a capo */
+    white-space: nowrap; 
 }
 
-/* Bottone Riavvia (Rosso e in alto a destra) */
+/* Bottone Riavvia (Rosso e in alto a destra su PC) */
 #btn-restart-game {
     position: fixed;
     top: 20px;
     right: 20px;
-    background-color: #e74c3c; /* Rosso acceso */
+    background-color: #e74c3c; 
     color: white;
     z-index: 100;
 }
@@ -184,12 +175,25 @@ button:disabled {
 /* Effetto visivo quando selezioni una carta in mano */
 .card.selected {
     border: 3px solid #f1c40f;
-    transform: translateY(-30px); /* Modificato: salta di 30px per staccarsi dall'hover che è a 15px */
+    transform: translateY(-30px); 
     box-shadow: 0px 10px 15px rgba(0,0,0,0.3);
 }
-/* 6. ADATTAMENTO PER GLI SMARTPHONE */
+
+/* Posiziona il testo in ALTO a SINISTRA per le calate sul tavolo */
+#calate-area .card {
+    justify-content: flex-start; 
+    align-items: flex-start;     
+    padding-top: 5px;            
+    padding-left: 5px;           
+    font-size: 16px;             
+    line-height: 1;              
+}
+
+/* ========================================= */
+/* 6. ADATTAMENTO UNICO PER GLI SMARTPHONE   */
+/* ========================================= */
 @media (max-width: 600px) {
-    /* Impediamo alle carte di rimpicciolirsi troppo (flex-shrink: 0) */
+    /* Carte più piccole */
     .card { width: 50px; height: 75px; font-size: 12px; flex-shrink: 0; }
     
     /* Trasformiamo la mano in un binario scorrevole orizzontale */
@@ -197,7 +201,7 @@ button:disabled {
         display: flex; 
         overflow-x: auto; 
         width: 100vw; 
-        padding-bottom: 10px; /* Spazio per scorrere senza tagliare l'ombra */
+        padding-bottom: 10px; 
         padding-left: 10px;
         padding-right: 10px;
     }
@@ -207,18 +211,17 @@ button:disabled {
         margin-left: 5px; 
     }
     
-    
+    /* Chat adattata per il mobile */
     #chat-container { width: 90%; right: 5%; bottom: 180px; }
-}
 
-/* Correzione visiva: sposta il testo in alto a sinistra per le carte impilate */
-/* NUOVA Visualizzazione professionale per le calate sul tavolo */
-/* Posiziona il testo in ALTO a SINISTRA, nella zona sicura che non viene coperta */
-#calate-area .card {
-    justify-content: flex-start; /* Allinea a sinistra */
-    align-items: flex-start;     /* Allinea in ALTO (questa è la correzione) */
-    padding-top: 5px;            /* Piccolo spazio dal tetto */
-    padding-left: 5px;           /* Piccolo spazio dal lato */
-    font-size: 16px;             /* Grandezza ben leggibile */
-    line-height: 1;              /* Toglie spazi vuoti invisibili attorno al testo */
+    /* Bottone Riavvia spostato al centro, sopra il tavolo */
+    #btn-restart-game {
+        top: 26%; 
+        left: 50%; 
+        right: auto; 
+        transform: translate(-50%, -100%); 
+        font-size: 11px; 
+        padding: 5px 10px;
+        box-shadow: 0px 4px 6px rgba(0,0,0,0.5); 
+    }
 }
