@@ -102,7 +102,13 @@ body {
 }
 
 /* 5. BOTTONI E CHAT */
-#action-buttons { margin-bottom: 10px; }
+#action-buttons { 
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
 button {
     padding: 8px 15px;
     margin: 0 5px;
