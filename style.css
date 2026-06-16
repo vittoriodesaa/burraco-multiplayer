@@ -123,7 +123,6 @@ button:disabled {
     cursor: not-allowed; 
 }
 
-/* Chat Popup */
 
 
 #chat-container {
@@ -206,7 +205,7 @@ button:disabled {
         margin-left: 5px; 
     }
     
-    #btn-toggle-chat { bottom: 130px; }
+    
     #chat-container { width: 90%; right: 5%; bottom: 180px; }
 }
 
