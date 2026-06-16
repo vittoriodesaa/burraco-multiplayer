@@ -216,10 +216,10 @@ button:disabled {
 
     /* Bottone Riavvia spostato al centro, sopra il tavolo */
     #btn-restart-game {
-        top: 26%; 
+        top: 30%; 
         left: 50%; 
         right: auto; 
-        transform: translate(-50%, -100%); 
+        transform: translate(-50%); 
         font-size: 11px; 
         padding: 5px 10px;
         box-shadow: 0px 4px 6px rgba(0,0,0,0.5); 
