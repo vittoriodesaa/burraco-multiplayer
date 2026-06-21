@@ -161,6 +161,9 @@ function formattaCarta(carta) {
 // La memoria ora è un "Array" vuoto, in grado di ricordare più carte contemporaneamente
 let indiciCarteSelezionate = [];
 
+// NUOVA MEMORIA: Ricorda l'indice del gruppo a terra che hai cliccato
+let indiceCalataSelezionata = null;
+
 function disegnaManoReale(carte) {
     const div = document.getElementById('player-hand');
     div.innerHTML = '';
@@ -188,6 +191,7 @@ function disegnaManoReale(carte) {
                 cDiv.classList.add('selected');
                 indiciCarteSelezionate.push(index);
             }
+            if (typeof aggiornaBottoniAzione === "function") aggiornaBottoniAzione();
         });
 
         div.appendChild(cDiv);
@@ -226,13 +230,43 @@ function disegnaCalate(calate) {
     if (!calate || calate.length === 0) return;
 
     // Per ogni tris o scala che troviamo nel database...
-    calate.forEach(gruppo => {
+    // NOTA: Ho aggiunto "indexGruppo" qui sotto per riconoscere quale colonna clicchi
+    calate.forEach((gruppo, indexGruppo) => {
         // Creiamo una "colonna" invisibile per tenerle impilate
         const colonnaDiv = document.createElement('div');
         colonnaDiv.style.display = 'flex';
         colonnaDiv.style.flexDirection = 'column';
+        
+        // --- INIZIO MODIFICA PER IL CLICK ---
+        colonnaDiv.className = 'calata-group';
+        colonnaDiv.style.cursor = 'pointer'; 
 
-        // Disegniamo le singole carte di quel gruppo
+        // Se la colonna era già selezionata, le rimettiamo la classe per illuminarla
+        if (indiceCalataSelezionata === indexGruppo) {
+            colonnaDiv.classList.add('selected-meld');
+        }
+
+        // Il sensore: cosa succede quando clicchi questa colonna a terra
+        colonnaDiv.addEventListener('click', () => {
+            // Spegne tutte le altre
+            document.querySelectorAll('.calata-group').forEach(el => el.classList.remove('selected-meld'));
+
+            if (indiceCalataSelezionata === indexGruppo) {
+                // Se la rilicchi, si spegne
+                colonnaDiv.classList.remove('selected-meld');
+                indiceCalataSelezionata = null;
+            } else {
+                // Altrimenti si accende e se la ricorda
+                colonnaDiv.classList.add('selected-meld');
+                indiceCalataSelezionata = indexGruppo;
+            }
+            
+            // Aggiorna i bottoni
+            if (typeof aggiornaBottoniAzione === "function") aggiornaBottoniAzione();
+        });
+        // --- FINE MODIFICA PER IL CLICK ---
+
+        // Disegniamo le singole carte di quel gruppo (intatto)
         gruppo.forEach((carta, index) => {
             const cDiv = document.createElement('div');
             cDiv.className = 'card';
@@ -256,34 +290,44 @@ function gestisciBottoni(turnoDi, faseTurno) {
     const btnCala = document.getElementById('btn-meld');
     const btnScarta = document.getElementById('btn-discard');
     const btnChiudi = document.getElementById('btn-close-game');
+    const btnAttacca = document.getElementById('btn-attach'); // Aggiunto il nuovo bottone!
 
     // Se la partita è finita, tutto congelato per sempre
     if (faseTurno === 'fine') {
-        btnPesca.disabled = true;
-        btnCala.disabled = true;
-        btnScarta.disabled = true;
-        btnChiudi.disabled = true;
+        if(btnPesca) btnPesca.disabled = true;
+        if(btnCala) btnCala.disabled = true;
+        if(btnScarta) btnScarta.disabled = true;
+        if(btnChiudi) btnChiudi.disabled = true;
+        if(btnAttacca) btnAttacca.disabled = true; 
         return;
     }
 
+    // Se non è il tuo turno, spegni tutto
     if (turnoDi !== mioRuolo) {
-        btnPesca.disabled = true;
-        btnCala.disabled = true;
-        btnScarta.disabled = true;
-        btnChiudi.disabled = true;
+        if(btnPesca) btnPesca.disabled = true;
+        if(btnCala) btnCala.disabled = true;
+        if(btnScarta) btnScarta.disabled = true;
+        if(btnChiudi) btnChiudi.disabled = true;
+        if(btnAttacca) btnAttacca.disabled = true; 
         return;
     }
 
+    // Gestione delle fasi del tuo turno
     if (faseTurno === 'pesca') {
-        btnPesca.disabled = false;
-        btnCala.disabled = true;
-        btnScarta.disabled = true;
-        btnChiudi.disabled = true;
+        if(btnPesca) btnPesca.disabled = false;
+        if(btnCala) btnCala.disabled = true;
+        if(btnScarta) btnScarta.disabled = true;
+        if(btnChiudi) btnChiudi.disabled = true;
+        if(btnAttacca) btnAttacca.disabled = true; 
     } else if (faseTurno === 'scarto') {
-        btnPesca.disabled = true;
-        btnCala.disabled = false;
-        btnScarta.disabled = false;
-        btnChiudi.disabled = false; // Il tasto Chiudi si accende dopo aver pescato
+        if(btnPesca) btnPesca.disabled = true;
+        if(btnScarta) btnScarta.disabled = false;
+        if(btnChiudi) btnChiudi.disabled = false;
+        
+        // DELEGA AL VIGILE URBANO:
+        // Spegniamo Cala e Attacca. Si accenderanno da soli appena il giocatore seleziona le carte giuste.
+        if(btnCala) btnCala.disabled = true;
+        if(btnAttacca) btnAttacca.disabled = true; 
     }
 }
 
@@ -536,6 +580,111 @@ document.getElementById('btn-meld').addEventListener('click', () => {
             .catch((err) => console.error(err));
     });
 });
+
+// IL VIGILE URBANO DEI BOTTONI
+function aggiornaBottoniAzione() {
+    const btnCala = document.getElementById('btn-meld');
+    const btnAttacca = document.getElementById('btn-attach');
+
+    // Spegniamo entrambi di base
+    if(btnCala) btnCala.disabled = true;
+    if(btnAttacca) btnAttacca.disabled = true;
+
+    // SCENARIO 1: Voglio ATTACCARE (Ho carte in mano e ho selezionato un gruppo a terra)
+    if (indiciCarteSelezionate.length > 0 && indiceCalataSelezionata !== null) {
+        if(btnAttacca) btnAttacca.disabled = false;
+    } 
+    // SCENARIO 2: Voglio CALARE (Ho almeno 3 carte in mano e NESSUN gruppo a terra selezionato)
+    else if (indiciCarteSelezionate.length >= 3 && indiceCalataSelezionata === null) {
+        if(btnCala) btnCala.disabled = false;
+    }
+}
+
+// IL CERVELLO MATEMATICO DELL'ATTACCO
+function isAttaccoValido(gruppoEsistente, carteDaAggiungere) {
+    // Uniamo virtualmente le carte a terra con quelle nuove selezionate dalla mano
+    let gruppoUnito = [...gruppoEsistente, ...carteDaAggiungere];
+    
+    // Sfruttiamo il tuo validatore già esistente per controllare se il gruppo finale è legale!
+    return validaCalata(gruppoUnito);
+}
+
+// --- FINE PATCH ---
+
+
+// 12.5 LOGICA DEI BOTTONI: ATTACCA
+document.getElementById('btn-attach').addEventListener('click', () => {
+    // 1. Controlli di base
+    if (indiciCarteSelezionate.length === 0 || indiceCalataSelezionata === null) {
+        alert("Devi selezionare almeno una carta dalla mano e un gruppo a terra!");
+        return;
+    }
+
+    const stanzaRef = ref(db, 'stanza_principale');
+    get(stanzaRef).then((snapshot) => {
+        const dati = snapshot.val();
+        if (!dati) return;
+
+        let miaMano = (mioRuolo === 'giocatore1') ? dati.giocatore1 : dati.giocatore2;
+        let gruppoBersaglio = dati.calate[indiceCalataSelezionata];
+
+        // 2. Leggiamo quali carte hai selezionato
+        let carteDaAttaccare = [];
+        indiciCarteSelezionate.forEach(indice => {
+            carteDaAttaccare.push(miaMano[indice]);
+        });
+
+        // 3. Chiediamo al cervello matematico se l'aggancio è legale
+        if (!isAttaccoValido(gruppoBersaglio, carteDaAttaccare)) {
+            alert("Mossa Illegale! Le carte non rispettano la scala o la combinazione (ricorda: max 1 matta).");
+            return;
+        }
+
+        // 4. Se legale, estraiamo le carte dalla mano (in ordine decrescente!)
+        indiciCarteSelezionate.sort((a, b) => b - a);
+        indiciCarteSelezionate.forEach(indice => {
+            miaMano.splice(indice, 1);
+        });
+
+        // 5. Inseriamo le carte nel gruppo a terra
+        gruppoBersaglio.push(...carteDaAttaccare);
+
+        // 6. RIORDINO DEL GRUPPO A TERRA (Fondamentale!)
+        const pesoSemi = { 'Cuori': 1, 'Quadri': 2, 'Fiori': 3, 'Picche': 4, 'Jolly': 5 };
+        gruppoBersaglio.sort((cartaA, cartaB) => {
+            if (pesoSemi[cartaA.seme] !== pesoSemi[cartaB.seme]) {
+                return pesoSemi[cartaA.seme] - pesoSemi[cartaB.seme];
+            }
+            return cartaA.valore - cartaB.valore;
+        });
+
+        // 7. Pulizia memorie e bottoni
+        indiciCarteSelezionate = [];
+        indiceCalataSelezionata = null;
+        aggiornaBottoniAzione(); // Spegne i bottoni
+
+        // 8. CONTROLLO POZZETTO AL VOLO
+        if (miaMano.length === 0) {
+            if (dati.pozzetto1) {
+                miaMano.push(...dati.pozzetto1);
+                dati.pozzetto1 = null;
+                if (mioRuolo === 'giocatore1') dati.presoPozzettoG1 = true; else dati.presoPozzettoG2 = true;
+                alert("Hai preso il primo Pozzetto al volo! Puoi continuare a giocare.");
+            } else if (dati.pozzetto2) {
+                miaMano.push(...dati.pozzetto2);
+                dati.pozzetto2 = null;
+                if (mioRuolo === 'giocatore1') dati.presoPozzettoG1 = true; else dati.presoPozzettoG2 = true;
+                alert("Hai preso il secondo Pozzetto al volo! Puoi continuare a giocare.");
+            }
+        }
+
+        // 9. Salviamo sul Database
+        set(stanzaRef, dati)
+            .then(() => console.log("Carte attaccate con successo!"))
+            .catch((err) => console.error(err));
+    });
+});
+
 
 // 13. LA CALCOLATRICE DEI PUNTI
 function calcolaPunteggio(carte) {
