@@ -758,10 +758,18 @@ document.getElementById('btn-close-game').addEventListener('click', () => {
     });
 });
 
-// 15. LOGICA DELLA CHAT MULTIPLAYER
+// Mostra o nasconde la chat quando clicchi sul bottone in basso
 // Mostra o nasconde la chat quando clicchi sul bottone in basso
 document.getElementById('btn-toggle-chat').addEventListener('click', () => {
-    document.getElementById('chat-container').classList.toggle('hidden');
+    const chatContainer = document.getElementById('chat-container');
+    const btnChat = document.getElementById('btn-toggle-chat');
+    
+    chatContainer.classList.toggle('hidden');
+
+    // SEPARAZIONE DELLE COMPETENZE: Rimuoviamo solo la classe di stato
+    if (!chatContainer.classList.contains('hidden')) {
+        btnChat.classList.remove('nuovo-messaggio');
+    }
 });
 
 // Invia il messaggio quando clicchi sul bottone "Invia"
@@ -797,6 +805,10 @@ function inviaMessaggioChat() {
 function aggiornaChatGrafica(chat) {
     const div = document.getElementById('chat-messages');
     if (!div) return;
+    
+    // Contiamo quanti messaggi ci sono visibili PRIMA di aggiornare
+    const numeroMessaggiPrecedenti = div.childElementCount; 
+    
     div.innerHTML = ''; // Svuotiamo i vecchi messaggi
 
     if (!chat) return;
@@ -809,10 +821,18 @@ function aggiornaChatGrafica(chat) {
         div.appendChild(p);
     });
 
-    // Trucco fondamentale: costringe la chat a scorrere da sola verso il basso all'ultimo messaggio
+    // Costringe la chat a scorrere da sola verso il basso
     div.scrollTop = div.scrollHeight;
-}
 
+    const chatContainer = document.getElementById('chat-container');
+    const btnChat = document.getElementById('btn-toggle-chat');
+
+    // SEPARAZIONE DELLE COMPETENZE: Il JS aggiunge solo la classe di stato.
+    // Sarà poi il CSS a decidere come mostrare il punto esclamativo e il colore rosso.
+    if (chat.length > numeroMessaggiPrecedenti && chatContainer.classList.contains('hidden')) {
+        btnChat.classList.add('nuovo-messaggio');
+    }
+}
 
 
 // 16. LOGICA DEL BOTTONE: RIAVVIA PARTITA (Con Consenso)

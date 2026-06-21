@@ -258,3 +258,27 @@ button:disabled {
         background-color: #2980b9;
     }
 }
+
+/* ========================================= */
+/* 7. NOTIFICA CHAT IN TEMPO REALE           */
+/* ========================================= */
+
+/* Quando il bottone riceve la classe dal JavaScript */
+#btn-toggle-chat.nuovo-messaggio {
+    background-color: #e74c3c; /* Rosso acceso */
+    color: white;
+    /* Aggiungiamo una leggerissima animazione per farlo "pulsare" (opzionale ma comodissima) */
+    animation: avvisoChat 1.5s infinite; 
+}
+
+/* Iniettiamo il punto esclamativo senza toccare l'HTML! */
+#btn-toggle-chat.nuovo-messaggio::after {
+    content: " ❗";
+}
+
+/* L'animazione per richiamare l'attenzione */
+@keyframes avvisoChat {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
